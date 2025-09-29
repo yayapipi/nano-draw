@@ -1,13 +1,24 @@
 const MAX_STYLE_IMAGES = 6;
-const MAX_RESULTS = 20;
+const MAX_RESULTS = 5;
+const MAX_PRESETS = 12;
 const MODEL_NAME = "gemini-2.5-flash-image-preview";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
+
+const STORAGE_DEFAULTS = {
+  apiKey: "",
+  styleLibrary: [],
+  promptPresets: [],
+  defaultPresetId: "",
+  recentResults: []
+};
 
 const state = {
   apiKey: "",
   currentInputs: [],
   library: [],
-  results: []
+  results: [],
+  promptPresets: [],
+  defaultPresetId: ""
 };
 
 let loadingMessage = "";
@@ -15,6 +26,12 @@ let loadingMessage = "";
 const els = {
   prompt: document.getElementById("promptInput"),
   promptCount: document.getElementById("promptCount"),
+  savePresetBtn: document.getElementById("savePresetBtn"),
+  clearPromptBtn: document.getElementById("clearPromptBtn"),
+  clearPresets: document.getElementById("clearPresets"),
+  presetList: document.getElementById("presetList"),
+  presetEmpty: document.getElementById("presetEmpty"),
+  presetTemplate: document.getElementById("presetTemplate"),
   imageInput: document.getElementById("imageInput"),
   uploadZone: document.getElementById("uploadZone"),
   currentGrid: document.getElementById("currentGrid"),
@@ -42,13 +59,13 @@ function uuid() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-
 init();
 
 async function init() {
   attachEventListeners();
   await hydrateState();
   updatePromptCount();
+  renderPresets();
   renderLibrary();
   renderCurrentInputs();
   renderResults();
@@ -57,7 +74,9 @@ async function init() {
 function attachEventListeners() {
   els.prompt.addEventListener("input", updatePromptCount);
   els.imageInput.addEventListener("change", onFilePick);
-  els.generateBtn.addEventListener("click", generateImages);
+  els.generateBtn.addEventListener("click", () => {
+    void generateImages();
+  });
   els.clearCurrent.addEventListener("click", () => {
     state.currentInputs = [];
     renderCurrentInputs();
@@ -70,16 +89,31 @@ function attachEventListeners() {
     renderLibrary();
   });
   els.clearResults.addEventListener("click", () => {
-    state.results = [];
-    renderResults();
+    void clearResultsList();
   });
   els.openSettings.addEventListener("click", () => toggleDialog(true));
   els.closeSettings.addEventListener("click", () => toggleDialog(false));
   els.settingsDialog.addEventListener("click", (evt) => {
     if (evt.target === els.settingsDialog) toggleDialog(false);
   });
-  els.saveApiKey.addEventListener("click", saveApiKey);
-  els.deleteApiKey.addEventListener("click", removeApiKey);
+  els.saveApiKey.addEventListener("click", () => {
+    void saveApiKey();
+  });
+  els.deleteApiKey.addEventListener("click", () => {
+    void removeApiKey();
+  });
+
+  els.savePresetBtn.addEventListener("click", () => {
+    void savePromptPreset();
+  });
+  els.clearPromptBtn.addEventListener("click", () => {
+    setPrompt("");
+    notify("Prompt cleared.");
+  });
+  els.clearPresets.addEventListener("click", () => {
+    void clearAllPresets();
+  });
+  els.presetList.addEventListener("click", onPresetAction);
 
   els.libraryGrid.addEventListener("click", onLibraryAction);
   els.currentGrid.addEventListener("click", onCurrentAction);
@@ -111,17 +145,39 @@ function attachEventListeners() {
 
 async function hydrateState() {
   try {
-    const { apiKey = "", styleLibrary = [] } = await chrome.storage.local.get({
-      apiKey: "",
-      styleLibrary: []
-    });
-    state.apiKey = apiKey;
-    state.library = styleLibrary;
-    els.apiKeyInput.value = apiKey;
+    const stored = await chrome.storage.local.get(STORAGE_DEFAULTS);
+    state.apiKey = stored.apiKey || "";
+    state.library = Array.isArray(stored.styleLibrary) ? stored.styleLibrary : [];
+    state.promptPresets = Array.isArray(stored.promptPresets) ? stored.promptPresets : [];
+    state.defaultPresetId = stored.defaultPresetId || "";
+    state.results = (Array.isArray(stored.recentResults) ? stored.recentResults : [])
+      .slice(0, MAX_RESULTS)
+      .filter((item) => item?.dataUrl)
+      .map((item) => ({
+        id: item.id || uuid(),
+        dataUrl: item.dataUrl,
+        label: item.label || null,
+        createdAt: item.createdAt || Date.now()
+      }));
+
+    els.apiKeyInput.value = state.apiKey;
+
+    if (state.defaultPresetId) {
+      const preset = state.promptPresets.find((entry) => entry.id === state.defaultPresetId);
+      if (preset) {
+        setPrompt(preset.text);
+      }
+    }
   } catch (error) {
     console.error("Failed to hydrate state", error);
     notify("Unable to load saved settings.");
   }
+}
+
+function setPrompt(value) {
+  els.prompt.value = value;
+  updatePromptCount();
+  els.prompt.focus();
 }
 
 function updatePromptCount() {
@@ -138,7 +194,7 @@ function onFilePick(evt) {
 }
 
 function processFiles(fileList) {
-  const files = Array.from(fileList).slice(0, MAX_STYLE_IMAGES);
+  const files = Array.from(fileList);
   const slotsLeft = MAX_STYLE_IMAGES - state.currentInputs.length;
   if (slotsLeft <= 0) {
     notify(`Maximum of ${MAX_STYLE_IMAGES} style images reached.`);
@@ -188,6 +244,7 @@ function renderCurrentInputs() {
     `;
     els.currentGrid.appendChild(node);
   });
+  els.clearCurrent.disabled = !state.currentInputs.length;
 }
 
 function renderLibrary() {
@@ -205,44 +262,79 @@ function renderLibrary() {
     `;
     els.libraryGrid.appendChild(node);
   });
+  els.clearLibrary.disabled = !state.library.length;
+}
+
+function renderPresets() {
+  els.presetList.innerHTML = "";
+
+  if (!state.promptPresets.length) {
+    els.presetEmpty.style.display = "block";
+    els.clearPresets.disabled = true;
+    return;
+  }
+
+  els.presetEmpty.style.display = "none";
+  els.clearPresets.disabled = false;
+
+  state.promptPresets.forEach((preset, index) => {
+    const node = els.presetTemplate.content.firstElementChild.cloneNode(true);
+    const titleEl = node.querySelector(".preset-card-title");
+    const bodyEl = node.querySelector(".preset-card-body");
+    const badgeEl = node.querySelector(".preset-badge");
+    const defaultBtn = node.querySelector('[data-action="default"]');
+
+    const firstLine = (preset.text || "").split(/\r?\n/).find(Boolean) || `Preset ${index + 1}`;
+    titleEl.textContent = firstLine.length > 60 ? `${firstLine.slice(0, 57)}…` : firstLine;
+
+    if (preset.createdAt) {
+      const meta = document.createElement("small");
+      const date = new Date(preset.createdAt);
+      meta.textContent = date.toLocaleString();
+      titleEl.appendChild(meta);
+    }
+
+    bodyEl.textContent = preset.text;
+    node.dataset.id = preset.id;
+
+    const isDefault = preset.id === state.defaultPresetId;
+    node.classList.toggle("is-default", isDefault);
+    badgeEl.textContent = "Default";
+
+    if (isDefault) {
+      defaultBtn.textContent = "Default";
+      defaultBtn.disabled = true;
+    } else {
+      defaultBtn.textContent = "Set Default";
+      defaultBtn.disabled = false;
+    }
+
+    els.presetList.appendChild(node);
+  });
 }
 
 function renderResults() {
   els.resultsGrid.innerHTML = "";
+
   state.results.forEach((item, index) => {
     const node = els.resultTemplate.content.firstElementChild.cloneNode(true);
     const img = node.querySelector("img");
     img.src = item.dataUrl;
     img.alt = item.label || `Result ${index + 1}`;
     node.dataset.id = item.id;
+
+    if (item.fresh) {
+      node.classList.add("enter");
+      node.addEventListener("animationend", () => {
+        node.classList.remove("enter");
+      }, { once: true });
+      delete item.fresh;
+    }
+
     els.resultsGrid.appendChild(node);
   });
-}
 
-async function saveApiKey() {
-  const key = els.apiKeyInput.value.trim();
-  if (!key) {
-    notify("API key is empty.");
-    return;
-  }
-  await chrome.storage.local.set({ apiKey: key });
-  state.apiKey = key;
-  notify("API key saved.");
-  toggleDialog(false);
-}
-
-async function removeApiKey() {
-  await chrome.storage.local.remove("apiKey");
-  state.apiKey = "";
-  els.apiKeyInput.value = "";
-  notify("API key removed.");
-}
-
-function toggleDialog(open) {
-  els.settingsDialog.classList.toggle("hidden", !open);
-  if (open) {
-    els.apiKeyInput.focus();
-  }
+  els.clearResults.disabled = !state.results.length;
 }
 
 function onLibraryAction(evt) {
@@ -256,7 +348,7 @@ function onLibraryAction(evt) {
   if (button.dataset.action === "use") {
     addToCurrent(item);
   } else if (button.dataset.action === "delete") {
-    deleteFromLibrary(id);
+    void deleteFromLibrary(id);
   }
 }
 
@@ -269,7 +361,7 @@ function onCurrentAction(evt) {
   if (idx === -1) return;
 
   if (button.dataset.action === "save") {
-    persistToLibrary(state.currentInputs[idx]);
+    void persistToLibrary(state.currentInputs[idx]);
   } else if (button.dataset.action === "remove") {
     state.currentInputs.splice(idx, 1);
     renderCurrentInputs();
@@ -297,6 +389,27 @@ function onResultAction(evt) {
   }
 }
 
+function onPresetAction(evt) {
+  const button = evt.target.closest("button[data-action]");
+  if (!button) return;
+  const card = button.closest(".preset-card");
+  if (!card) return;
+  const id = card.dataset.id;
+  if (!id) return;
+  const preset = state.promptPresets.find((entry) => entry.id === id);
+  if (!preset) return;
+
+  const action = button.dataset.action;
+  if (action === "apply") {
+    setPrompt(preset.text);
+    notify("Preset applied.");
+  } else if (action === "default") {
+    void setDefaultPreset(id);
+  } else if (action === "delete") {
+    void deletePreset(id);
+  }
+}
+
 function addToCurrent(source) {
   if (state.currentInputs.length >= MAX_STYLE_IMAGES) {
     notify(`Maximum of ${MAX_STYLE_IMAGES} style images reached.`);
@@ -316,6 +429,7 @@ async function deleteFromLibrary(id) {
   state.library = state.library.filter((entry) => entry.id !== id);
   await chrome.storage.local.set({ styleLibrary: state.library });
   renderLibrary();
+  notify("Removed from library.");
 }
 
 async function persistToLibrary(item) {
@@ -334,6 +448,88 @@ async function persistToLibrary(item) {
   await chrome.storage.local.set({ styleLibrary: state.library });
   renderLibrary();
   notify("Saved to library.");
+}
+
+async function savePromptPreset() {
+  const text = els.prompt.value.trim();
+  if (!text) {
+    notify("Write a prompt before saving.");
+    return;
+  }
+  if (state.promptPresets.some((preset) => preset.text === text)) {
+    notify("Preset already exists.");
+    return;
+  }
+  if (state.promptPresets.length >= MAX_PRESETS) {
+    notify(`Limit of ${MAX_PRESETS} presets reached.`);
+    return;
+  }
+  state.promptPresets.unshift({
+    id: uuid(),
+    text,
+    createdAt: Date.now()
+  });
+  await persistPresets();
+  renderPresets();
+  notify("Preset saved.");
+}
+
+async function setDefaultPreset(id) {
+  if (state.defaultPresetId === id) {
+    notify("Already the default preset.");
+    return;
+  }
+  state.defaultPresetId = id;
+  await persistPresets();
+  renderPresets();
+  notify("Default preset updated.");
+}
+
+async function deletePreset(id) {
+  const index = state.promptPresets.findIndex((entry) => entry.id === id);
+  if (index === -1) return;
+  state.promptPresets.splice(index, 1);
+  if (state.defaultPresetId === id) {
+    state.defaultPresetId = state.promptPresets[0]?.id || "";
+  }
+  await persistPresets();
+  renderPresets();
+  notify("Preset removed.");
+}
+
+async function clearAllPresets() {
+  if (!state.promptPresets.length) return;
+  if (!confirm("Remove all prompt presets?")) return;
+  state.promptPresets = [];
+  state.defaultPresetId = "";
+  await persistPresets();
+  renderPresets();
+  notify("All presets cleared.");
+}
+
+async function persistPresets() {
+  await chrome.storage.local.set({
+    promptPresets: state.promptPresets,
+    defaultPresetId: state.defaultPresetId
+  });
+}
+
+async function persistResults() {
+  const payload = state.results.slice(0, MAX_RESULTS).map((item) => ({
+    id: item.id,
+    dataUrl: item.dataUrl,
+    label: item.label || null,
+    createdAt: item.createdAt || Date.now()
+  }));
+  await chrome.storage.local.set({ recentResults: payload });
+}
+
+async function clearResultsList() {
+  if (!state.results.length) return;
+  state.results = [];
+  renderResults();
+  await persistResults();
+  notify("Results cleared.");
 }
 
 async function generateImages() {
@@ -389,14 +585,16 @@ async function generateImages() {
       return;
     }
 
-    imageParts.forEach((image, idx) => {
+    imageParts.forEach((image) => {
       if (!image?.base64) return;
       const mime = image.mimeType || "image/png";
       const dataUrl = `data:${mime};base64,${image.base64}`;
       state.results.unshift({
         id: uuid(),
         dataUrl,
-        label: `Result ${state.results.length + idx + 1}`
+        label: null,
+        createdAt: Date.now(),
+        fresh: true
       });
     });
 
@@ -405,6 +603,7 @@ async function generateImages() {
     }
 
     renderResults();
+    await persistResults();
     notify(`Received ${imageParts.length} image(s).`);
   } catch (error) {
     console.error("Generation failed", error);
@@ -534,6 +733,7 @@ function collectImageParts(payload) {
       visit(entry?.content?.parts || entry?.parts);
     });
   }
+
   if (Array.isArray(payload?.outputs)) {
     payload.outputs.forEach((output) => {
       visit(output?.content?.parts);
@@ -547,6 +747,31 @@ function collectImageParts(payload) {
   return bucket;
 }
 
+async function saveApiKey() {
+  const key = els.apiKeyInput.value.trim();
+  if (!key) {
+    notify("API key is empty.");
+    return;
+  }
+  await chrome.storage.local.set({ apiKey: key });
+  state.apiKey = key;
+  notify("API key saved.");
+  toggleDialog(false);
+}
+
+async function removeApiKey() {
+  await chrome.storage.local.remove("apiKey");
+  state.apiKey = "";
+  els.apiKeyInput.value = "";
+  notify("API key removed.");
+}
+
+function toggleDialog(open) {
+  els.settingsDialog.classList.toggle("hidden", !open);
+  if (open) {
+    els.apiKeyInput.focus();
+  }
+}
 
 async function copyImageToClipboard(dataUrl) {
   if (!navigator?.clipboard?.write || typeof ClipboardItem === "undefined") {
@@ -586,11 +811,3 @@ async function safeParse(response) {
     return null;
   }
 }
-
-
-
-
-
-
-
-

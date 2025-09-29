@@ -23,6 +23,19 @@
           <span id="promptCount" class="meta-label">0 / 800</span>
         </div>
         <textarea id="promptInput" maxlength="800" placeholder="Describe what you want to create."></textarea>
+        <div class="panel-actions">
+          <button id="savePresetBtn" class="primary-btn small" type="button">Save Preset</button>
+          <button id="clearPromptBtn" class="ghost-btn small" type="button">Clear Prompt</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Prompt Presets</h2>
+          <button id="clearPresets" class="ghost-btn small" type="button">Clear All</button>
+        </div>
+        <div id="presetList" class="preset-list"></div>
+        <p id="presetEmpty" class="empty-state">No presets yet. Save prompts you love for one-click reuse.</p>
       </section>
 
       <section class="panel">
@@ -81,6 +94,21 @@
       <p class="hint">Keys are only stored locally via <code>chrome.storage.local</code>.</p>
     </div>
   </div>
+
+  <template id="presetTemplate">
+    <article class="preset-card">
+      <div class="preset-card-header">
+        <span class="preset-card-title"></span>
+        <span class="preset-badge">Default</span>
+      </div>
+      <p class="preset-card-body"></p>
+      <div class="preset-card-actions">
+        <button class="primary-btn small" data-action="apply" type="button">Apply</button>
+        <button class="ghost-btn small" data-action="default" type="button">Set Default</button>
+        <button class="ghost-btn small" data-action="delete" type="button">Delete</button>
+      </div>
+    </article>
+  </template>
 
   <template id="thumbTemplate">
     <div class="thumb">

@@ -1,1 +1,40 @@
-# Nano Draw\n\nChrome extension for generating images with Google Gemini's \gemini-2.5-flash-image-preview\ model.\n\n## Features\n- Upload up to six reference images to steer generations.\n- Save styles for reuse between sessions.\n- Generate, copy, download, or reuse results.\n- Store Gemini API key securely via \chrome.storage.local\.\n\n## Getting Started\n1. Load the extension folder via \chrome://extensions\ (Developer Mode ? Load unpacked).\n2. Open the popup and add a valid Gemini API key in Settings.\n3. Provide a prompt, optionally select style images, then click **Generate**.\n\n## Scripts\n- No build step required; all files are static.\n\n## License\nMIT\n
+# Nano Draw
+
+Nano Draw is a Chrome extension that lets you prototype visuals with Google Gemini's `gemini-2.5-flash-image-preview` model. Upload inspirational images, craft prompts, and iterate directly inside the browser popup.
+
+## Highlights
+- Combine up to six reference images to steer the model's style.
+- Save prompt presets (including a default) for quick reuse.
+- Maintain a style library that persists between sessions.
+- Keep your five most recent generations handy between sessions.
+- Generate images, then copy, download, or reapply them as styling inputs.
+- Keep your Gemini API key safe with `chrome.storage.local`.
+
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yayapipi/nano-draw.git
+   cd nano-draw
+   ```
+2. Open `chrome://extensions` and enable **Developer mode**.
+3. Choose **Load unpacked** and select the project folder.
+
+## First Run
+1. Open the Nano Draw popup from the Chrome toolbar.
+2. Click **Settings** and paste a valid Gemini API key.
+3. Optionally upload style reference images (drag-and-drop is supported).
+4. Enter or select a prompt preset, then press **Generate**.
+
+## Prompt Presets
+- Use **Save Preset** to store the current prompt for later.
+- Click **Apply** on any preset to populate the prompt field.
+- Mark a preset as **Default** to auto-fill the prompt when the popup opens.
+- Presets are stored locally and can be removed individually or cleared in one click.
+
+## Tips
+- Hold on to your favourite results by copying them to the clipboard or downloading locally.
+- Saved styles can be reapplied to new generations from the **Reference Library** panel.
+- Check the popup's DevTools (... > Inspect) if you need detailed API error messages.
+
+## License
+MIT
