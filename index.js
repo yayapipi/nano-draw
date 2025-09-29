@@ -1,3 +1,4 @@
+
 const MAX_STYLE_IMAGES = 6;
 const MAX_RESULTS = 5;
 const MAX_PRESETS = 12;
@@ -9,7 +10,209 @@ const STORAGE_DEFAULTS = {
   styleLibrary: [],
   promptPresets: [],
   defaultPresetId: "",
-  recentResults: []
+  recentResults: [],
+  theme: "light",
+  language: "en",
+  layout: "popout"
+};
+
+const translations = {
+  en: {
+    "app.title": "Nano Draw",
+    "app.subtitle": "Gemini image companion",
+    "app.credit": "Crafted by Yapi",
+    "panel.promptTitle": "Prompt Studio",
+    "panel.promptDescription": "Craft your idea and keep the best prompts close.",
+    "prompt.placeholder": "Describe what you want to create.",
+    "panel.presetsTitle": "Presets",
+    "panel.presetsEmpty": "No presets yet. Save prompts you love for one-click reuse.",
+    "panel.stylesTitle": "Style Reference",
+    "panel.stylesDescription": "Upload inspiration and curate a reusable style library.",
+    "panel.currentStyles": "Current Inputs",
+    "panel.libraryStyles": "Style Library",
+    "panel.generateTitle": "Generate",
+    "panel.generateDescription": "Send your prompt to Gemini and iterate quickly.",
+    "panel.resultsTitle": "Results",
+    "panel.resultsDescription": "Copy, download, or convert outputs into new styles.",
+    "upload.title": "Add reference images",
+    "upload.subtitle": "Drop files or click to browse (up to 6).",
+    "loading.generating": "Crafting your images...",
+    "actions.savePreset": "Save Preset",
+    "actions.clearPrompt": "Clear",
+    "actions.clearAll": "Clear All",
+    "actions.resetInputs": "Reset Inputs",
+    "actions.clearLibrary": "Clear Library",
+    "actions.generate": "Generate",
+    "actions.clearResults": "Clear Results",
+    "actions.save": "Save",
+    "actions.remove": "Remove",
+    "actions.applyPreset": "Apply",
+    "actions.setDefault": "Set Default",
+    "actions.defaultActive": "Default",
+    "actions.deletePreset": "Delete",
+    "actions.saveToLibrary": "Save",
+    "actions.removeInput": "Remove",
+    "actions.useStyle": "Use",
+    "actions.deleteStyle": "Delete",
+    "actions.copy": "Copy",
+    "actions.download": "Download",
+    "actions.styleFromResult": "Use as Style",
+    "settings.title": "Settings",
+    "settings.apiTitle": "Gemini API",
+    "settings.apiKeyLabel": "API Key",
+    "settings.apiKeyPlaceholder": "AIza...",
+    "settings.appearanceTitle": "Appearance",
+    "settings.theme": "Theme",
+    "settings.themeLight": "Light",
+    "settings.themeDark": "Dark",
+    "settings.layout": "Layout",
+    "settings.layoutPopout": "Popout",
+    "settings.layoutSidebar": "Sidebar",
+    "settings.languageTitle": "Language",
+    "settings.language": "Interface language",
+    "settings.languageEnglish": "English",
+    "settings.languageChinese": "Traditional Chinese",
+    "settings.aboutTitle": "About",
+    "settings.credit": "Designed and built by Yapi.",
+    "badge.default": "Default",
+    "grid.currentEmpty": "No inputs selected.",
+    "grid.libraryEmpty": "No saved styles yet.",
+    "grid.resultsEmpty": "Images will appear here.",
+    "status.promptRequired": "Write a prompt to generate.",
+    "status.apiKeyMissing": "Add your Gemini API key in Settings.",
+    "status.apiKeyEmpty": "API key is empty.",
+    "status.inputLimit": "Maximum of {{max}} style images reached.",
+    "status.readFailed": "Unable to read {{name}}.",
+    "status.styleSaved": "Saved to library.",
+    "status.styleExists": "Already saved.",
+    "status.styleRemoved": "Removed from library.",
+    "status.libraryCleared": "Style library cleared.",
+    "status.presetSaved": "Preset saved.",
+    "status.presetExists": "Preset already exists.",
+    "status.presetLimit": "Limit of {{max}} presets reached.",
+    "status.presetApplied": "Preset applied.",
+    "status.defaultPresetSet": "Default preset updated.",
+    "status.presetRemoved": "Preset removed.",
+    "status.presetsCleared": "All presets cleared.",
+    "status.resultsCleared": "Results cleared.",
+    "status.promptCleared": "Prompt cleared.",
+    "status.apiSaved": "API key saved.",
+    "status.apiRemoved": "API key removed.",
+    "status.copySuccess": "Copied to clipboard.",
+    "status.copyFailed": "Copy failed. Try downloading instead.",
+    "status.noImages": "No images returned.",
+    "status.generatedCount": "Received {{count}} image(s).",
+    "status.generationFailed": "Generation failed.",
+    "status.loadSettingsFailed": "Unable to load saved settings.",
+    "confirm.clearLibrary": "Clear all saved styles?",
+    "confirm.clearPresets": "Remove all prompt presets?",
+    "aria.openSettings": "Open settings",
+    "aria.closeSettings": "Close settings",
+    "result.alt": "Generated result {{index}}",
+    "label.style": "Style",
+    "label.result": "Result {{index}}",
+    "file.default": "nano-draw"
+  },
+  "zh-TW": {
+    "app.title": "Nano Draw",
+    "app.subtitle": "Gemini ????",
+    "app.credit": "? Yapi ??",
+    "panel.promptTitle": "?????",
+    "panel.promptDescription": "??????,????????",
+    "prompt.placeholder": "??????????",
+    "panel.presetsTitle": "????",
+    "panel.presetsEmpty": "????,??????????????",
+    "panel.stylesTitle": "????",
+    "panel.stylesDescription": "?????????????????",
+    "panel.currentStyles": "????",
+    "panel.libraryStyles": "???",
+    "panel.generateTitle": "??",
+    "panel.generateDescription": "????? Gemini,?????",
+    "panel.resultsTitle": "??",
+    "panel.resultsDescription": "?????,???????????",
+    "upload.title": "??????",
+    "upload.subtitle": "?????????(?? 6 ?)?",
+    "loading.generating": "????????...",
+    "actions.savePreset": "????",
+    "actions.clearPrompt": "??",
+    "actions.clearAll": "????",
+    "actions.resetInputs": "????",
+    "actions.clearLibrary": "?????",
+    "actions.generate": "????",
+    "actions.clearResults": "????",
+    "actions.save": "??",
+    "actions.remove": "??",
+    "actions.applyPreset": "??",
+    "actions.setDefault": "????",
+    "actions.defaultActive": "??",
+    "actions.deletePreset": "??",
+    "actions.saveToLibrary": "??",
+    "actions.removeInput": "??",
+    "actions.useStyle": "??",
+    "actions.deleteStyle": "??",
+    "actions.copy": "??",
+    "actions.download": "??",
+    "actions.styleFromResult": "????",
+    "settings.title": "??",
+    "settings.apiTitle": "Gemini API",
+    "settings.apiKeyLabel": "API ??",
+    "settings.apiKeyPlaceholder": "AIza...",
+    "settings.appearanceTitle": "??",
+    "settings.theme": "??",
+    "settings.themeLight": "??",
+    "settings.themeDark": "??",
+    "settings.layout": "??",
+    "settings.layoutPopout": "????",
+    "settings.layoutSidebar": "???",
+    "settings.languageTitle": "????",
+    "settings.language": "????",
+    "settings.languageEnglish": "??",
+    "settings.languageChinese": "????",
+    "settings.aboutTitle": "??",
+    "settings.credit": "? Yapi ??????",
+    "badge.default": "??",
+    "grid.currentEmpty": "?????????",
+    "grid.libraryEmpty": "???????",
+    "grid.resultsEmpty": "??????????",
+    "status.promptRequired": "??????????",
+    "status.apiKeyMissing": "???????? Gemini API ???",
+    "status.inputLimit": "?? {{max}} ?????????",
+    "status.readFailed": "???? {{name}}?",
+    "status.styleSaved": "????????",
+    "status.styleExists": "?????????",
+    "status.styleRemoved": "????????",
+    "status.libraryCleared": "???????",
+    "status.presetSaved": "????????",
+    "status.presetExists": "???????",
+    "status.presetLimit": "??????? {{max}} ??",
+    "status.presetApplied": "????????",
+    "status.defaultPresetSet": "????????",
+    "status.presetRemoved": "????????",
+    "status.presetsCleared": "??????????",
+    "status.resultsCleared": "????????",
+    "status.promptCleared": "????????",
+    "status.apiSaved": "??? API ???",
+    "status.apiRemoved": "??? API ???",
+    "status.copySuccess": "????????",
+    "status.copyFailed": "????,??????",
+    "status.noImages": "?????????",
+    "status.generatedCount": "?? {{count}} ????",
+    "status.generationFailed": "?????",
+    "status.loadSettingsFailed": "??????????",
+    "confirm.clearLibrary": "???????????",
+    "confirm.clearPresets": "?????????????",
+    "aria.openSettings": "????",
+    "aria.closeSettings": "????",
+    "result.alt": "? {{index}} ?????",
+    "label.style": "??",
+    "label.result": "?? {{index}}",
+    "file.default": "nano-draw"
+  }
+};
+
+const LOCALES = {
+  en: "en-US",
+  "zh-TW": "zh-TW"
 };
 
 const state = {
@@ -18,12 +221,16 @@ const state = {
   library: [],
   results: [],
   promptPresets: [],
-  defaultPresetId: ""
+  defaultPresetId: "",
+  theme: "light",
+  language: "en",
+  layout: "popout"
 };
 
 let loadingMessage = "";
 
 const els = {
+  body: document.body,
   prompt: document.getElementById("promptInput"),
   promptCount: document.getElementById("promptCount"),
   savePresetBtn: document.getElementById("savePresetBtn"),
@@ -48,27 +255,38 @@ const els = {
   deleteApiKey: document.getElementById("deleteApiKey"),
   apiKeyInput: document.getElementById("apiKeyInput"),
   settingsDialog: document.getElementById("settingsDialog"),
+  themeSelect: document.getElementById("themeSelect"),
+  languageSelect: document.getElementById("languageSelect"),
+  layoutSelect: document.getElementById("layoutSelect"),
+  loadingOverlay: document.getElementById("loadingOverlay"),
   thumbTemplate: document.getElementById("thumbTemplate"),
   resultTemplate: document.getElementById("resultTemplate")
 };
-
-function uuid() {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
 
 init();
 
 async function init() {
   attachEventListeners();
   await hydrateState();
+  applyTheme(state.theme);
+  applyLayout(state.layout);
+  applyLanguage(state.language);
   updatePromptCount();
   renderPresets();
   renderLibrary();
   renderCurrentInputs();
   renderResults();
+}
+
+function t(key, replacements) {
+  const languagePack = translations[state.language] || translations.en;
+  const fallbackPack = translations.en;
+  const template = languagePack[key] ?? fallbackPack[key] ?? key;
+  if (!replacements) return template;
+  return template.replace(/\{\{(.*?)\}\}/g, (_, token) => {
+    const trimmed = token.trim();
+    return replacements[trimmed] ?? "";
+  });
 }
 
 function attachEventListeners() {
@@ -83,10 +301,11 @@ function attachEventListeners() {
   });
   els.clearLibrary.addEventListener("click", async () => {
     if (!state.library.length) return;
-    if (!confirm("Clear all saved styles?")) return;
+    if (!confirm(t("confirm.clearLibrary"))) return;
     state.library = [];
-    await chrome.storage.local.set({ styleLibrary: [] });
+    await chrome.storage.local.set({ styleLibrary: state.library });
     renderLibrary();
+    notify(t("status.libraryCleared"));
   });
   els.clearResults.addEventListener("click", () => {
     void clearResultsList();
@@ -108,7 +327,7 @@ function attachEventListeners() {
   });
   els.clearPromptBtn.addEventListener("click", () => {
     setPrompt("");
-    notify("Prompt cleared.");
+    notify(t("status.promptCleared"));
   });
   els.clearPresets.addEventListener("click", () => {
     void clearAllPresets();
@@ -141,6 +360,21 @@ function attachEventListeners() {
       processFiles(files);
     }
   });
+
+  els.themeSelect.addEventListener("change", (evt) => {
+    const value = evt.target.value === "dark" ? "dark" : "light";
+    applyTheme(value, { persist: true });
+  });
+
+  els.languageSelect.addEventListener("change", (evt) => {
+    const value = translations[evt.target.value] ? evt.target.value : "en";
+    applyLanguage(value, { persist: true });
+  });
+
+  els.layoutSelect.addEventListener("change", (evt) => {
+    const value = evt.target.value === "sidebar" ? "sidebar" : "popout";
+    applyLayout(value, { persist: true });
+  });
 }
 
 async function hydrateState() {
@@ -150,6 +384,9 @@ async function hydrateState() {
     state.library = Array.isArray(stored.styleLibrary) ? stored.styleLibrary : [];
     state.promptPresets = Array.isArray(stored.promptPresets) ? stored.promptPresets : [];
     state.defaultPresetId = stored.defaultPresetId || "";
+    state.theme = stored.theme === "dark" ? "dark" : "light";
+    state.language = translations[stored.language] ? stored.language : "en";
+    state.layout = stored.layout === "sidebar" ? "sidebar" : "popout";
     state.results = (Array.isArray(stored.recentResults) ? stored.recentResults : [])
       .slice(0, MAX_RESULTS)
       .filter((item) => item?.dataUrl)
@@ -161,6 +398,9 @@ async function hydrateState() {
       }));
 
     els.apiKeyInput.value = state.apiKey;
+    els.themeSelect.value = state.theme;
+    els.languageSelect.value = state.language;
+    els.layoutSelect.value = state.layout;
 
     if (state.defaultPresetId) {
       const preset = state.promptPresets.find((entry) => entry.id === state.defaultPresetId);
@@ -170,7 +410,65 @@ async function hydrateState() {
     }
   } catch (error) {
     console.error("Failed to hydrate state", error);
-    notify("Unable to load saved settings.");
+    notify(t("status.loadSettingsFailed"));
+  }
+}
+
+function applyTheme(theme, options = {}) {
+  const resolved = theme === "dark" ? "dark" : "light";
+  state.theme = resolved;
+  els.body.classList.remove("theme-light", "theme-dark");
+  els.body.classList.add(`theme-${resolved}`);
+  els.themeSelect.value = resolved;
+  if (options.persist) {
+    void chrome.storage.local.set({ theme: resolved });
+  }
+}
+
+function applyLayout(layout, options = {}) {
+  const resolved = layout === "sidebar" ? "sidebar" : "popout";
+  state.layout = resolved;
+  els.body.classList.remove("layout-popout", "layout-sidebar");
+  els.body.classList.add(`layout-${resolved}`);
+  els.layoutSelect.value = resolved;
+  if (options.persist) {
+    void chrome.storage.local.set({ layout: resolved });
+  }
+}
+
+function applyLanguage(language, options = {}) {
+  const resolved = translations[language] ? language : "en";
+  state.language = resolved;
+  document.documentElement.lang = resolved;
+  els.languageSelect.value = resolved;
+
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    const key = node.dataset.i18n;
+    node.textContent = t(key);
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    const key = node.dataset.i18nPlaceholder;
+    node.setAttribute("placeholder", t(key));
+  });
+
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((node) => {
+    const key = node.dataset.i18nAriaLabel;
+    node.setAttribute("aria-label", t(key));
+  });
+
+  els.currentGrid.dataset.empty = t("grid.currentEmpty");
+  els.libraryGrid.dataset.empty = t("grid.libraryEmpty");
+  els.resultsGrid.dataset.empty = t("grid.resultsEmpty");
+  els.presetEmpty.textContent = t("panel.presetsEmpty");
+
+  renderPresets();
+  renderCurrentInputs();
+  renderLibrary();
+  renderResults();
+
+  if (options.persist) {
+    void chrome.storage.local.set({ language: resolved });
   }
 }
 
@@ -181,10 +479,8 @@ function setPrompt(value) {
 }
 
 function updatePromptCount() {
-  const current = els.prompt.value.length;
-  els.promptCount.textContent = `${current} / ${els.prompt.maxLength}`;
+  els.promptCount.textContent = `${els.prompt.value.length} / ${els.prompt.maxLength}`;
 }
-
 function onFilePick(evt) {
   const files = evt.target.files;
   if (files?.length) {
@@ -197,12 +493,11 @@ function processFiles(fileList) {
   const files = Array.from(fileList);
   const slotsLeft = MAX_STYLE_IMAGES - state.currentInputs.length;
   if (slotsLeft <= 0) {
-    notify(`Maximum of ${MAX_STYLE_IMAGES} style images reached.`);
+    notify(t("status.inputLimit", { max: MAX_STYLE_IMAGES }));
     return;
   }
 
-  const toProcess = files.slice(0, slotsLeft);
-  toProcess.forEach(async (file) => {
+  files.slice(0, slotsLeft).forEach(async (file) => {
     if (!file.type.startsWith("image/")) return;
     try {
       const dataUrl = await readFile(file);
@@ -215,7 +510,7 @@ function processFiles(fileList) {
       renderCurrentInputs();
     } catch (error) {
       console.error("Failed to read file", error);
-      notify(`Unable to read ${file.name}.`);
+      notify(t("status.readFailed", { name: file.name }));
     }
   });
 }
@@ -230,17 +525,18 @@ function readFile(file) {
 }
 
 function renderCurrentInputs() {
+  els.currentGrid.dataset.empty = t("grid.currentEmpty");
   els.currentGrid.innerHTML = "";
   state.currentInputs.forEach((item, index) => {
     const node = els.thumbTemplate.content.firstElementChild.cloneNode(true);
     const img = node.querySelector("img");
     img.src = item.dataUrl;
-    img.alt = item.name || `Style ${index + 1}`;
+    img.alt = item.name || `${t("label.style")} ${index + 1}`;
     node.dataset.id = item.id;
     const actions = node.querySelector(".thumb-actions");
     actions.innerHTML = `
-      <button class="ghost-btn small" data-action="save" type="button">Save</button>
-      <button class="ghost-btn small" data-action="remove" type="button">Remove</button>
+      <button class="ghost-btn xsmall" data-action="save" type="button">${t("actions.saveToLibrary")}</button>
+      <button class="ghost-btn xsmall" data-action="remove" type="button">${t("actions.removeInput")}</button>
     `;
     els.currentGrid.appendChild(node);
   });
@@ -248,17 +544,18 @@ function renderCurrentInputs() {
 }
 
 function renderLibrary() {
+  els.libraryGrid.dataset.empty = t("grid.libraryEmpty");
   els.libraryGrid.innerHTML = "";
   state.library.forEach((item, index) => {
     const node = els.thumbTemplate.content.firstElementChild.cloneNode(true);
     const img = node.querySelector("img");
     img.src = item.dataUrl;
-    img.alt = item.label || `Library ${index + 1}`;
+    img.alt = item.label || `${t("label.style")} ${index + 1}`;
     node.dataset.id = item.id;
     const actions = node.querySelector(".thumb-actions");
     actions.innerHTML = `
-      <button class="ghost-btn small" data-action="use" type="button">Use</button>
-      <button class="ghost-btn small" data-action="delete" type="button">Delete</button>
+      <button class="ghost-btn xsmall" data-action="use" type="button">${t("actions.useStyle")}</button>
+      <button class="ghost-btn xsmall" data-action="delete" type="button">${t("actions.deleteStyle")}</button>
     `;
     els.libraryGrid.appendChild(node);
   });
@@ -267,7 +564,6 @@ function renderLibrary() {
 
 function renderPresets() {
   els.presetList.innerHTML = "";
-
   if (!state.promptPresets.length) {
     els.presetEmpty.style.display = "block";
     els.clearPresets.disabled = true;
@@ -276,21 +572,21 @@ function renderPresets() {
 
   els.presetEmpty.style.display = "none";
   els.clearPresets.disabled = false;
+  const locale = LOCALES[state.language] || "en-US";
 
   state.promptPresets.forEach((preset, index) => {
     const node = els.presetTemplate.content.firstElementChild.cloneNode(true);
     const titleEl = node.querySelector(".preset-card-title");
     const bodyEl = node.querySelector(".preset-card-body");
     const badgeEl = node.querySelector(".preset-badge");
-    const defaultBtn = node.querySelector('[data-action="default"]');
+    const actionsEl = node.querySelector(".preset-card-actions");
 
-    const firstLine = (preset.text || "").split(/\r?\n/).find(Boolean) || `Preset ${index + 1}`;
+    const firstLine = (preset.text || "").split(/\r?\n/).find(Boolean) || `${t("label.style")} ${index + 1}`;
     titleEl.textContent = firstLine.length > 60 ? `${firstLine.slice(0, 57)}…` : firstLine;
 
     if (preset.createdAt) {
       const meta = document.createElement("small");
-      const date = new Date(preset.createdAt);
-      meta.textContent = date.toLocaleString();
+      meta.textContent = new Date(preset.createdAt).toLocaleString(locale, { hour12: false });
       titleEl.appendChild(meta);
     }
 
@@ -299,29 +595,37 @@ function renderPresets() {
 
     const isDefault = preset.id === state.defaultPresetId;
     node.classList.toggle("is-default", isDefault);
-    badgeEl.textContent = "Default";
+    badgeEl.textContent = t("badge.default");
 
-    if (isDefault) {
-      defaultBtn.textContent = "Default";
-      defaultBtn.disabled = true;
-    } else {
-      defaultBtn.textContent = "Set Default";
-      defaultBtn.disabled = false;
-    }
+    const defaultLabel = isDefault ? t("actions.defaultActive") : t("actions.setDefault");
+    const defaultDisabled = isDefault ? "disabled" : "";
+
+    actionsEl.innerHTML = `
+      <button class="primary-btn xsmall" data-action="apply" type="button">${t("actions.applyPreset")}</button>
+      <button class="ghost-btn xsmall" data-action="default" type="button" ${defaultDisabled}>${defaultLabel}</button>
+      <button class="ghost-btn xsmall" data-action="delete" type="button">${t("actions.deletePreset")}</button>
+    `;
 
     els.presetList.appendChild(node);
   });
 }
 
 function renderResults() {
+  els.resultsGrid.dataset.empty = t("grid.resultsEmpty");
   els.resultsGrid.innerHTML = "";
-
   state.results.forEach((item, index) => {
     const node = els.resultTemplate.content.firstElementChild.cloneNode(true);
     const img = node.querySelector("img");
     img.src = item.dataUrl;
-    img.alt = item.label || `Result ${index + 1}`;
+    img.alt = t("result.alt", { index: index + 1 });
     node.dataset.id = item.id;
+
+    const actions = node.querySelector(".thumb-actions");
+    actions.innerHTML = `
+      <button class="ghost-btn xsmall" data-action="copy" type="button">${t("actions.copy")}</button>
+      <button class="ghost-btn xsmall" data-action="download" type="button">${t("actions.download")}</button>
+      <button class="ghost-btn xsmall" data-action="style" type="button">${t("actions.styleFromResult")}</button>
+    `;
 
     if (item.fresh) {
       node.classList.add("enter");
@@ -376,15 +680,14 @@ function onResultAction(evt) {
   const item = state.results.find((entry) => entry.id === id);
   if (!item) return;
 
-  const action = button.dataset.action;
-  if (action === "copy") {
+  if (button.dataset.action === "copy") {
     copyImageToClipboard(item.dataUrl).catch((error) => {
       console.error("Clipboard error", error);
-      notify("Copy failed. Try downloading instead.");
+      notify(t("status.copyFailed"));
     });
-  } else if (action === "download") {
+  } else if (button.dataset.action === "download") {
     downloadImage(item);
-  } else if (action === "style") {
+  } else if (button.dataset.action === "style") {
     addToCurrent(item);
   }
 }
@@ -395,29 +698,26 @@ function onPresetAction(evt) {
   const card = button.closest(".preset-card");
   if (!card) return;
   const id = card.dataset.id;
-  if (!id) return;
   const preset = state.promptPresets.find((entry) => entry.id === id);
   if (!preset) return;
 
-  const action = button.dataset.action;
-  if (action === "apply") {
+  if (button.dataset.action === "apply") {
     setPrompt(preset.text);
-    notify("Preset applied.");
-  } else if (action === "default") {
+    notify(t("status.presetApplied"));
+  } else if (button.dataset.action === "default") {
     void setDefaultPreset(id);
-  } else if (action === "delete") {
+  } else if (button.dataset.action === "delete") {
     void deletePreset(id);
   }
 }
-
 function addToCurrent(source) {
   if (state.currentInputs.length >= MAX_STYLE_IMAGES) {
-    notify(`Maximum of ${MAX_STYLE_IMAGES} style images reached.`);
+    notify(t("status.inputLimit", { max: MAX_STYLE_IMAGES }));
     return;
   }
   const payload = {
     id: uuid(),
-    name: source.label || source.name || "Style",
+    name: source.label || source.name || t("label.style"),
     mimeType: source.mimeType || inferMimeFromDataUrl(source.dataUrl),
     dataUrl: source.dataUrl
   };
@@ -429,17 +729,17 @@ async function deleteFromLibrary(id) {
   state.library = state.library.filter((entry) => entry.id !== id);
   await chrome.storage.local.set({ styleLibrary: state.library });
   renderLibrary();
-  notify("Removed from library.");
+  notify(t("status.styleRemoved"));
 }
 
 async function persistToLibrary(item) {
   if (state.library.some((entry) => entry.dataUrl === item.dataUrl)) {
-    notify("Already saved.");
+    notify(t("status.styleExists"));
     return;
   }
   const entry = {
     id: uuid(),
-    label: item.name || "Style",
+    label: item.name || t("label.style"),
     mimeType: item.mimeType,
     dataUrl: item.dataUrl,
     createdAt: Date.now()
@@ -447,21 +747,22 @@ async function persistToLibrary(item) {
   state.library.unshift(entry);
   await chrome.storage.local.set({ styleLibrary: state.library });
   renderLibrary();
-  notify("Saved to library.");
+  notify(t("status.styleSaved"));
 }
 
 async function savePromptPreset() {
   const text = els.prompt.value.trim();
   if (!text) {
-    notify("Write a prompt before saving.");
+    notify(t("status.promptRequired"));
+    els.prompt.focus();
     return;
   }
   if (state.promptPresets.some((preset) => preset.text === text)) {
-    notify("Preset already exists.");
+    notify(t("status.presetExists"));
     return;
   }
   if (state.promptPresets.length >= MAX_PRESETS) {
-    notify(`Limit of ${MAX_PRESETS} presets reached.`);
+    notify(t("status.presetLimit", { max: MAX_PRESETS }));
     return;
   }
   state.promptPresets.unshift({
@@ -471,18 +772,14 @@ async function savePromptPreset() {
   });
   await persistPresets();
   renderPresets();
-  notify("Preset saved.");
+  notify(t("status.presetSaved"));
 }
 
 async function setDefaultPreset(id) {
-  if (state.defaultPresetId === id) {
-    notify("Already the default preset.");
-    return;
-  }
   state.defaultPresetId = id;
   await persistPresets();
   renderPresets();
-  notify("Default preset updated.");
+  notify(t("status.defaultPresetSet"));
 }
 
 async function deletePreset(id) {
@@ -494,17 +791,17 @@ async function deletePreset(id) {
   }
   await persistPresets();
   renderPresets();
-  notify("Preset removed.");
+  notify(t("status.presetRemoved"));
 }
 
 async function clearAllPresets() {
   if (!state.promptPresets.length) return;
-  if (!confirm("Remove all prompt presets?")) return;
+  if (!confirm(t("confirm.clearPresets"))) return;
   state.promptPresets = [];
   state.defaultPresetId = "";
   await persistPresets();
   renderPresets();
-  notify("All presets cleared.");
+  notify(t("status.presetsCleared"));
 }
 
 async function persistPresets() {
@@ -529,18 +826,18 @@ async function clearResultsList() {
   state.results = [];
   renderResults();
   await persistResults();
-  notify("Results cleared.");
+  notify(t("status.resultsCleared"));
 }
 
 async function generateImages() {
   if (!state.apiKey) {
-    notify("Add your Gemini API key in Settings.");
+    notify(t("status.apiKeyMissing"));
     toggleDialog(true);
     return;
   }
   const prompt = els.prompt.value.trim();
   if (!prompt) {
-    notify("Write a prompt to generate.");
+    notify(t("status.promptRequired"));
     els.prompt.focus();
     return;
   }
@@ -561,7 +858,7 @@ async function generateImages() {
     ]
   };
 
-  setLoading(true, "Generating images...");
+  setLoading(true, t("loading.generating"));
 
   try {
     const response = await fetch(API_URL, {
@@ -581,18 +878,18 @@ async function generateImages() {
     const payload = await response.json();
     const imageParts = collectImageParts(payload);
     if (!imageParts.length) {
-      notify("No images returned.");
+      notify(t("status.noImages"));
       return;
     }
 
-    imageParts.forEach((image) => {
+    imageParts.forEach((image, idx) => {
       if (!image?.base64) return;
       const mime = image.mimeType || "image/png";
       const dataUrl = `data:${mime};base64,${image.base64}`;
       state.results.unshift({
         id: uuid(),
         dataUrl,
-        label: null,
+        label: t("label.result", { index: state.results.length + idx + 1 }),
         createdAt: Date.now(),
         fresh: true
       });
@@ -604,10 +901,10 @@ async function generateImages() {
 
     renderResults();
     await persistResults();
-    notify(`Received ${imageParts.length} image(s).`);
+    notify(t("status.generatedCount", { count: imageParts.length }));
   } catch (error) {
     console.error("Generation failed", error);
-    notify(error.message || "Generation failed.");
+    notify(error.message || t("status.generationFailed"));
   } finally {
     setLoading(false);
   }
@@ -615,15 +912,18 @@ async function generateImages() {
 
 function setLoading(isLoading, message = "") {
   els.generateBtn.disabled = isLoading;
+  els.loadingOverlay.classList.toggle("hidden", !isLoading);
   if (isLoading) {
     loadingMessage = message;
-    els.status.textContent = message;
-    return;
+    if (message) {
+      els.status.textContent = message;
+    }
+  } else {
+    if (els.status.textContent === loadingMessage) {
+      els.status.textContent = "";
+    }
+    loadingMessage = "";
   }
-  if (els.status.textContent === loadingMessage) {
-    els.status.textContent = "";
-  }
-  loadingMessage = "";
 }
 
 function notify(message) {
@@ -634,7 +934,7 @@ function notify(message) {
     if (els.status.textContent === message) {
       els.status.textContent = "";
     }
-  }, 3000);
+  }, 3200);
 }
 
 function inferMimeFromDataUrl(dataUrl) {
@@ -645,7 +945,6 @@ function inferMimeFromDataUrl(dataUrl) {
 function toBase64(dataUrl) {
   return dataUrl.split(",")[1] || "";
 }
-
 function collectImageParts(payload) {
   const bucket = [];
 
@@ -681,9 +980,7 @@ function collectImageParts(payload) {
         ? candidate.rawContent
         : candidate.rawContent?.data);
 
-    const base64 =
-      typeof rawBase64 === "string" ? rawBase64.replace(/\s+/g, "") : "";
-
+    const base64 = typeof rawBase64 === "string" ? rawBase64.replace(/\s+/g, "") : "";
     if (!base64) return;
 
     const mime =
@@ -750,12 +1047,12 @@ function collectImageParts(payload) {
 async function saveApiKey() {
   const key = els.apiKeyInput.value.trim();
   if (!key) {
-    notify("API key is empty.");
+    notify(t("status.apiKeyEmpty"));
     return;
   }
   await chrome.storage.local.set({ apiKey: key });
   state.apiKey = key;
-  notify("API key saved.");
+  notify(t("status.apiSaved"));
   toggleDialog(false);
 }
 
@@ -763,7 +1060,7 @@ async function removeApiKey() {
   await chrome.storage.local.remove("apiKey");
   state.apiKey = "";
   els.apiKeyInput.value = "";
-  notify("API key removed.");
+  notify(t("status.apiRemoved"));
 }
 
 function toggleDialog(open) {
@@ -775,14 +1072,14 @@ function toggleDialog(open) {
 
 async function copyImageToClipboard(dataUrl) {
   if (!navigator?.clipboard?.write || typeof ClipboardItem === "undefined") {
-    notify("Clipboard not available in this context.");
+    notify(t("status.copyFailed"));
     return;
   }
   const blob = dataUrlToBlob(dataUrl);
   await navigator.clipboard.write([
     new ClipboardItem({ [blob.type]: blob })
   ]);
-  notify("Copied to clipboard.");
+  notify(t("status.copySuccess"));
 }
 
 function downloadImage(item) {
@@ -790,7 +1087,8 @@ function downloadImage(item) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${item.label || "nano-draw"}.png`;
+  const base = item.label || t("file.default");
+  a.download = `${base}-${Date.now()}.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -811,3 +1109,14 @@ async function safeParse(response) {
     return null;
   }
 }
+
+function uuid() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+
+
+

@@ -5,10 +5,10 @@ Nano Draw is a Chrome extension that lets you prototype visuals with Google Gemi
 ## Highlights
 - Combine up to six reference images to steer the model's style.
 - Save prompt presets (including a default) for quick reuse.
-- Maintain a style library that persists between sessions.
-- Keep your five most recent generations handy between sessions.
+- Maintain a style library and keep your five most recent generations handy between sessions.
+- Switch between light or dark themes and popout or sidebar layouts.
+- Work in English or Traditional Chinese, all stored locally in the browser.
 - Generate images, then copy, download, or reapply them as styling inputs.
-- Keep your Gemini API key safe with `chrome.storage.local`.
 
 ## Installation
 1. Clone the repository:
@@ -32,8 +32,9 @@ Nano Draw is a Chrome extension that lets you prototype visuals with Google Gemi
 - Presets are stored locally and can be removed individually or cleared in one click.
 
 ## Tips
-- Hold on to your favourite results by copying them to the clipboard or downloading locally.
-- Saved styles can be reapplied to new generations from the **Reference Library** panel.
+- Hold on to favourite results by copying them to the clipboard or downloading locally.
+- Saved styles can be reapplied to new generations from the combined **Style Reference** module.
+- Adjust language, theme, and layout in **Settings** to match your workflow.
 - Check the popup's DevTools (... > Inspect) if you need detailed API error messages.
 
 ## License

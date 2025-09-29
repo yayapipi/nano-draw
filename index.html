@@ -6,92 +6,174 @@
   <title>Nano Draw</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="theme-light layout-popout">
   <div class="app-shell">
     <header class="app-header">
-      <div>
-        <h1 class="app-title">Nano Draw</h1>
-        <p class="app-subtitle">Minimal Gemini image studio</p>
+      <div class="app-identity">
+        <h1 class="app-title" data-i18n="app.title">Nano Draw</h1>
+        <p class="app-subtitle" data-i18n="app.subtitle">Gemini image companion</p>
       </div>
-      <button id="openSettings" class="ghost-btn" type="button">Settings</button>
+      <button id="openSettings" class="icon-btn" type="button" aria-label="Open settings" data-i18n-aria-label="aria.openSettings">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10.5 2h3l.6 2.4c.4.1.7.3 1 .5l2.3-1 1.5 2.6-1.9 1.5c0 .3.1.7.1 1s0 .7-.1 1l1.9 1.5-1.5 2.6-2.3-1c-.3.2-.6.4-1 .5L13.5 20h-3l-.6-2.4c-.4-.1-.7-.3-1-.5l-2.3 1-1.5-2.6 1.9-1.5c-.1-.3-.1-.7-.1-1s0-.7.1-1L3.1 7.5l1.5-2.6 2.3 1c.3-.2.6-.4 1-.5L10.5 2Zm1.5 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+        </svg>
+      </button>
     </header>
 
     <main class="app-main">
-      <section class="panel">
+      <section class="panel" data-module="prompt">
         <div class="panel-header">
-          <h2>Prompt</h2>
+          <div>
+            <h2 data-i18n="panel.promptTitle">Prompt Studio</h2>
+            <p class="panel-subtitle" data-i18n="panel.promptDescription">Craft your idea and keep the best prompts close.</p>
+          </div>
           <span id="promptCount" class="meta-label">0 / 800</span>
         </div>
-        <textarea id="promptInput" maxlength="800" placeholder="Describe what you want to create."></textarea>
-        <div class="panel-actions">
-          <button id="savePresetBtn" class="primary-btn small" type="button">Save Preset</button>
-          <button id="clearPromptBtn" class="ghost-btn small" type="button">Clear Prompt</button>
+        <div class="prompt-combo">
+          <textarea id="promptInput" maxlength="800" data-i18n-placeholder="prompt.placeholder" placeholder="Describe what you want to create."></textarea>
+          <div class="prompt-actions">
+            <button id="savePresetBtn" class="primary-btn small" type="button" data-i18n="actions.savePreset">Save Preset</button>
+            <button id="clearPromptBtn" class="ghost-btn small" type="button" data-i18n="actions.clearPrompt">Clear</button>
+          </div>
+        </div>
+        <div class="preset-board">
+          <div class="preset-board-header">
+            <h3 data-i18n="panel.presetsTitle">Presets</h3>
+            <div class="preset-controls">
+              <button id="clearPresets" class="ghost-btn xsmall" type="button" data-i18n="actions.clearAll">Clear All</button>
+            </div>
+          </div>
+          <div id="presetList" class="preset-list"></div>
+          <p id="presetEmpty" class="empty-state" data-i18n="panel.presetsEmpty">No presets yet. Save prompts you love for one-click reuse.</p>
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-module="styles">
         <div class="panel-header">
-          <h2>Prompt Presets</h2>
-          <button id="clearPresets" class="ghost-btn small" type="button">Clear All</button>
+          <div>
+            <h2 data-i18n="panel.stylesTitle">Style Reference</h2>
+            <p class="panel-subtitle" data-i18n="panel.stylesDescription">Upload inspiration and curate a reusable style library.</p>
+          </div>
+          <div class="panel-actions">
+            <button id="clearCurrent" class="ghost-btn xsmall" type="button" data-i18n="actions.resetInputs">Reset Inputs</button>
+            <button id="clearLibrary" class="ghost-btn xsmall" type="button" data-i18n="actions.clearLibrary">Clear Library</button>
+          </div>
         </div>
-        <div id="presetList" class="preset-list"></div>
-        <p id="presetEmpty" class="empty-state">No presets yet. Save prompts you love for one-click reuse.</p>
+        <div class="style-content">
+          <div class="upload-zone" id="uploadZone">
+            <input id="imageInput" type="file" accept="image/*" multiple />
+            <div class="upload-copy">
+              <strong data-i18n="upload.title">Add reference images</strong>
+              <p data-i18n="upload.subtitle">Drop files or click to browse (up to 6).</p>
+            </div>
+          </div>
+          <div class="style-grid">
+            <div class="style-column">
+              <div class="style-column-header">
+                <h3 data-i18n="panel.currentStyles">Current Inputs</h3>
+              </div>
+              <div id="currentGrid" class="thumb-grid" data-empty="No inputs selected."></div>
+            </div>
+            <div class="style-column">
+              <div class="style-column-header">
+                <h3 data-i18n="panel.libraryStyles">Style Library</h3>
+              </div>
+              <div id="libraryGrid" class="thumb-grid" data-empty="No saved styles yet."></div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-module="generate">
         <div class="panel-header">
-          <h2>Reference Library</h2>
-          <button id="clearLibrary" class="ghost-btn small" type="button">Clear</button>
+          <div>
+            <h2 data-i18n="panel.generateTitle">Generate</h2>
+            <p class="panel-subtitle" data-i18n="panel.generateDescription">Send your prompt to Gemini and iterate quickly.</p>
+          </div>
         </div>
-        <div id="libraryGrid" class="thumb-grid" data-empty="No saved styles yet."></div>
+        <div class="generate-actions">
+          <button id="generateBtn" class="primary-btn" type="button" data-i18n="actions.generate">Generate</button>
+          <span class="status" id="status"></span>
+        </div>
+        <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite">
+          <div class="spinner"></div>
+          <span data-i18n="loading.generating">Crafting your images...</span>
+        </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-module="results">
         <div class="panel-header">
-          <h2>Style Inputs</h2>
-          <button id="clearCurrent" class="ghost-btn small" type="button">Reset</button>
-        </div>
-        <div class="upload-zone" id="uploadZone">
-          <input id="imageInput" type="file" accept="image/*" multiple />
-          <p>Drop images or click to upload (up to 6).</p>
-        </div>
-        <div id="currentGrid" class="thumb-grid" data-empty="No inputs selected."></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Generation</h2>
-          <div class="status" id="status"></div>
-        </div>
-        <button id="generateBtn" class="primary-btn" type="button">Generate</button>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Results</h2>
-          <button id="clearResults" class="ghost-btn small" type="button">Clear</button>
+          <div>
+            <h2 data-i18n="panel.resultsTitle">Results</h2>
+            <p class="panel-subtitle" data-i18n="panel.resultsDescription">Copy, download, or convert outputs into new styles.</p>
+          </div>
+          <button id="clearResults" class="ghost-btn xsmall" type="button" data-i18n="actions.clearResults">Clear Results</button>
         </div>
         <div id="resultsGrid" class="thumb-grid results" data-empty="Images will appear here."></div>
       </section>
     </main>
+
+    <footer class="app-footer">
+      <span data-i18n="app.credit">Crafted by Yapi</span>
+    </footer>
   </div>
 
   <div id="settingsDialog" class="dialog hidden" role="dialog" aria-modal="true">
     <div class="dialog-panel">
       <header class="dialog-header">
-        <h2>API Key</h2>
-        <button id="closeSettings" class="ghost-btn" type="button" aria-label="Close settings">Close</button>
+        <h2 data-i18n="settings.title">Settings</h2>
+        <button id="closeSettings" class="icon-btn" type="button" aria-label="Close settings" data-i18n-aria-label="aria.closeSettings">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6.7 5.3 5.3 6.7 10.6 12l-5.3 5.3 1.4 1.4L12 13.4l5.3 5.3 1.4-1.4L13.4 12l5.3-5.3-1.4-1.4L12 10.6Z" />
+          </svg>
+        </button>
       </header>
-      <p>Provide a Google Gemini API key with access to <code>gemini-2.5-flash-image-preview</code>.</p>
-      <label class="field">
-        <span>Gemini API Key</span>
-        <input id="apiKeyInput" type="password" placeholder="AIza..." autocomplete="off" />
-      </label>
-      <div class="dialog-actions">
-        <button id="saveApiKey" class="primary-btn" type="button">Save</button>
-        <button id="deleteApiKey" class="ghost-btn" type="button">Remove</button>
-      </div>
-      <p class="hint">Keys are only stored locally via <code>chrome.storage.local</code>.</p>
+
+      <section class="settings-section">
+        <h3 data-i18n="settings.apiTitle">Gemini API</h3>
+        <label class="field">
+          <span data-i18n="settings.apiKeyLabel">API Key</span>
+          <input id="apiKeyInput" type="password" autocomplete="off" data-i18n-placeholder="settings.apiKeyPlaceholder" placeholder="AIza..." />
+        </label>
+        <div class="dialog-actions">
+          <button id="saveApiKey" class="primary-btn" type="button" data-i18n="actions.save">Save</button>
+          <button id="deleteApiKey" class="ghost-btn" type="button" data-i18n="actions.remove">Remove</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3 data-i18n="settings.appearanceTitle">Appearance</h3>
+        <label class="field">
+          <span data-i18n="settings.theme">Theme</span>
+          <select id="themeSelect">
+            <option value="light" data-i18n="settings.themeLight">Light</option>
+            <option value="dark" data-i18n="settings.themeDark">Dark</option>
+          </select>
+        </label>
+        <label class="field">
+          <span data-i18n="settings.layout">Layout</span>
+          <select id="layoutSelect">
+            <option value="popout" data-i18n="settings.layoutPopout">Popout</option>
+            <option value="sidebar" data-i18n="settings.layoutSidebar">Sidebar</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="settings-section">
+        <h3 data-i18n="settings.languageTitle">Language</h3>
+        <label class="field">
+          <span data-i18n="settings.language">Interface language</span>
+          <select id="languageSelect">
+            <option value="en" data-i18n="settings.languageEnglish">English</option>
+            <option value="zh-TW" data-i18n="settings.languageChinese">????</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="settings-section">
+        <h3 data-i18n="settings.aboutTitle">About</h3>
+        <p class="settings-note" data-i18n="settings.credit">Designed and built by Yapi.</p>
+      </section>
     </div>
   </div>
 
@@ -99,14 +181,10 @@
     <article class="preset-card">
       <div class="preset-card-header">
         <span class="preset-card-title"></span>
-        <span class="preset-badge">Default</span>
+        <span class="preset-badge" data-i18n="badge.default">Default</span>
       </div>
       <p class="preset-card-body"></p>
-      <div class="preset-card-actions">
-        <button class="primary-btn small" data-action="apply" type="button">Apply</button>
-        <button class="ghost-btn small" data-action="default" type="button">Set Default</button>
-        <button class="ghost-btn small" data-action="delete" type="button">Delete</button>
-      </div>
+      <div class="preset-card-actions"></div>
     </article>
   </template>
 
@@ -120,14 +198,11 @@
   <template id="resultTemplate">
     <div class="thumb">
       <img alt="Generated artwork" />
-      <div class="thumb-actions">
-        <button class="ghost-btn small" data-action="copy" type="button">Copy</button>
-        <button class="ghost-btn small" data-action="download" type="button">Download</button>
-        <button class="ghost-btn small" data-action="style" type="button">Use as style</button>
-      </div>
+      <div class="thumb-actions"></div>
     </div>
   </template>
 
   <script src="index.js" defer></script>
 </body>
 </html>
+
