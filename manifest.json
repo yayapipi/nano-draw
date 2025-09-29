@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Nano Draw",
+  "description": "Generate and iterate on images with Google Gemini in a minimal, professional UI.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "Nano Draw",
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "storage",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "icons": {
+    "128": "assets/icon-128.png"
+  }
+}
+

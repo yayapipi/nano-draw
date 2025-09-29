@@ -1,0 +1,1 @@
+# Logs\n*.log\n\n# OS artifacts\n.DS_Store\nThumbs.db\n\n# IDE settings\n.vscode/\n.idea/\n

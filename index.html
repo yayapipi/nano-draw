@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nano Draw</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <h1 class="app-title">Nano Draw</h1>
+        <p class="app-subtitle">Minimal Gemini image studio</p>
+      </div>
+      <button id="openSettings" class="ghost-btn" type="button">Settings</button>
+    </header>
+
+    <main class="app-main">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Prompt</h2>
+          <span id="promptCount" class="meta-label">0 / 800</span>
+        </div>
+        <textarea id="promptInput" maxlength="800" placeholder="Describe what you want to create."></textarea>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Reference Library</h2>
+          <button id="clearLibrary" class="ghost-btn small" type="button">Clear</button>
+        </div>
+        <div id="libraryGrid" class="thumb-grid" data-empty="No saved styles yet."></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Style Inputs</h2>
+          <button id="clearCurrent" class="ghost-btn small" type="button">Reset</button>
+        </div>
+        <div class="upload-zone" id="uploadZone">
+          <input id="imageInput" type="file" accept="image/*" multiple />
+          <p>Drop images or click to upload (up to 6).</p>
+        </div>
+        <div id="currentGrid" class="thumb-grid" data-empty="No inputs selected."></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Generation</h2>
+          <div class="status" id="status"></div>
+        </div>
+        <button id="generateBtn" class="primary-btn" type="button">Generate</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Results</h2>
+          <button id="clearResults" class="ghost-btn small" type="button">Clear</button>
+        </div>
+        <div id="resultsGrid" class="thumb-grid results" data-empty="Images will appear here."></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="settingsDialog" class="dialog hidden" role="dialog" aria-modal="true">
+    <div class="dialog-panel">
+      <header class="dialog-header">
+        <h2>API Key</h2>
+        <button id="closeSettings" class="ghost-btn" type="button" aria-label="Close settings">Close</button>
+      </header>
+      <p>Provide a Google Gemini API key with access to <code>gemini-2.5-flash-image-preview</code>.</p>
+      <label class="field">
+        <span>Gemini API Key</span>
+        <input id="apiKeyInput" type="password" placeholder="AIza..." autocomplete="off" />
+      </label>
+      <div class="dialog-actions">
+        <button id="saveApiKey" class="primary-btn" type="button">Save</button>
+        <button id="deleteApiKey" class="ghost-btn" type="button">Remove</button>
+      </div>
+      <p class="hint">Keys are only stored locally via <code>chrome.storage.local</code>.</p>
+    </div>
+  </div>
+
+  <template id="thumbTemplate">
+    <div class="thumb">
+      <img alt="" />
+      <div class="thumb-actions"></div>
+    </div>
+  </template>
+
+  <template id="resultTemplate">
+    <div class="thumb">
+      <img alt="Generated artwork" />
+      <div class="thumb-actions">
+        <button class="ghost-btn small" data-action="copy" type="button">Copy</button>
+        <button class="ghost-btn small" data-action="download" type="button">Download</button>
+        <button class="ghost-btn small" data-action="style" type="button">Use as style</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="index.js" defer></script>
+</body>
+</html>
