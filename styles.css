@@ -29,7 +29,7 @@ body * {
   --text-secondary: rgba(18, 24, 38, 0.66);
   --text-muted: rgba(18, 24, 38, 0.48);
   --accent: #1f7ae0;
-  --accent-soft: rgba(31, 122, 224, 0.16);
+  --accent-soft: rgba(31, 122, 224, 0.18);
   --shadow-panel: 0 18px 36px rgba(18, 24, 38, 0.08);
   --surface-dialog: #ffffff;
   --scrollbar-thumb: rgba(18, 24, 38, 0.22);
@@ -46,25 +46,31 @@ body * {
   --text-secondary: rgba(245, 247, 255, 0.72);
   --text-muted: rgba(245, 247, 255, 0.5);
   --accent: #5aaaff;
-  --accent-soft: rgba(90, 170, 255, 0.18);
+  --accent-soft: rgba(90, 170, 255, 0.2);
   --shadow-panel: 0 22px 38px rgba(0, 0, 0, 0.45);
   --surface-dialog: #1c222e;
   --scrollbar-thumb: rgba(245, 247, 255, 0.18);
 }
 
 .app-shell {
-  width: 480px;
   margin: 0 auto;
-  padding: 28px 28px 24px;
+  padding: 30px 32px 26px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
   min-height: 100vh;
+  width: 580px;
+}
+
+.layout-popout .app-shell {
+  width: 620px;
+  min-height: 720px;
 }
 
 .layout-sidebar .app-shell {
-  width: 380px;
-  padding: 24px 20px 20px;
+  width: 360px;
+  padding: 24px 22px 20px;
+  min-height: 100vh;
 }
 
 .app-header {
@@ -75,7 +81,7 @@ body * {
 
 .app-title {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -113,38 +119,93 @@ body * {
 .app-main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .panel {
   background: var(--surface-panel);
   border: 1px solid var(--border-default);
   border-radius: 18px;
-  padding: 20px 22px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
   box-shadow: var(--shadow-panel);
   position: relative;
-  overflow: hidden;
+  transition: box-shadow var(--transition-default), border var(--transition-default);
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.panel-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.panel-header-main h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .panel-subtitle {
-  margin: 6px 0 0;
+  margin: 0;
   color: var(--text-muted);
   font-size: 0.85rem;
+}
+
+.panel-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .meta-label {
   color: var(--text-muted);
   font-size: 0.8rem;
+}
+
+.drag-handle {
+  border: 1px solid var(--border-default);
+  background: var(--surface-panel);
+  color: var(--text-muted);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  transition: border var(--transition-default), color var(--transition-default), transform var(--transition-default), box-shadow var(--transition-default);
+}
+
+.drag-handle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 8px 16px var(--accent-soft);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  transform: translateY(1px);
+}
+
+.drag-handle svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.panel-dragging {
+  opacity: 0.75;
+  border-color: var(--accent);
+  box-shadow: 0 20px 32px var(--accent-soft);
 }
 
 .primary-btn,
@@ -207,7 +268,7 @@ body * {
 
 .xsmall {
   padding: 6px 12px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .prompt-combo {
@@ -369,7 +430,7 @@ input:focus {
 .upload-zone.dragging {
   border-color: var(--accent);
   color: var(--accent);
-  background: color-mix(in srgb, var(--accent-soft) 50%, var(--surface-subtle));
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface-subtle));
   box-shadow: 0 12px 22px var(--accent-soft);
 }
 
@@ -436,7 +497,6 @@ input:focus {
   position: relative;
   border: 1px solid var(--border-default);
   background: var(--surface-subtle);
-  cursor: pointer;
   transition: transform var(--transition-default), box-shadow var(--transition-default), border var(--transition-default);
 }
 
@@ -646,19 +706,25 @@ input:focus {
   }
 }
 
-@media (max-width: 460px) {
+@media (max-width: 640px) {
   .app-shell {
     width: 100%;
-    padding: 22px 16px;
+    padding: 24px 18px;
   }
 
   .panel {
-    padding: 18px;
+    padding: 20px;
   }
 
   .panel-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 14px;
+  }
+
+  .panel-header-tools {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .generate-actions {

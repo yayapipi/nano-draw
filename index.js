@@ -5,6 +5,9 @@ const MAX_PRESETS = 12;
 const MODEL_NAME = "gemini-2.5-flash-image-preview";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
 
+const MODULE_KEYS = ["prompt", "styles", "generate", "results"];
+const DEFAULT_MODULE_ORDER = [...MODULE_KEYS];
+
 const STORAGE_DEFAULTS = {
   apiKey: "",
   styleLibrary: [],
@@ -13,7 +16,8 @@ const STORAGE_DEFAULTS = {
   recentResults: [],
   theme: "light",
   language: "en",
-  layout: "popout"
+  layout: "popout",
+  moduleOrder: DEFAULT_MODULE_ORDER
 };
 
 const translations = {
@@ -108,6 +112,7 @@ const translations = {
     "confirm.clearPresets": "Remove all prompt presets?",
     "aria.openSettings": "Open settings",
     "aria.closeSettings": "Close settings",
+    "aria.dragModule": "Reorder module",
     "result.alt": "Generated result {{index}}",
     "label.style": "Style",
     "label.result": "Result {{index}}",
@@ -176,6 +181,7 @@ const translations = {
     "grid.resultsEmpty": "??????????",
     "status.promptRequired": "??????????",
     "status.apiKeyMissing": "???????? Gemini API ???",
+    "status.apiKeyEmpty": "??? API ???",
     "status.inputLimit": "?? {{max}} ?????????",
     "status.readFailed": "???? {{name}}?",
     "status.styleSaved": "????????",
@@ -203,6 +209,7 @@ const translations = {
     "confirm.clearPresets": "?????????????",
     "aria.openSettings": "????",
     "aria.closeSettings": "????",
+    "aria.dragModule": "???????",
     "result.alt": "? {{index}} ?????",
     "label.style": "??",
     "label.result": "?? {{index}}",
@@ -224,13 +231,16 @@ const state = {
   defaultPresetId: "",
   theme: "light",
   language: "en",
-  layout: "popout"
+  layout: "popout",
+  moduleOrder: [...DEFAULT_MODULE_ORDER]
 };
 
 let loadingMessage = "";
+let draggingModuleKey = null;
 
 const els = {
   body: document.body,
+  modulesRoot: document.getElementById("modulesRoot"),
   prompt: document.getElementById("promptInput"),
   promptCount: document.getElementById("promptCount"),
   savePresetBtn: document.getElementById("savePresetBtn"),
@@ -263,26 +273,36 @@ const els = {
   resultTemplate: document.getElementById("resultTemplate")
 };
 
-init();
-
-async function init() {
+(async function init() {
+  const params = new URLSearchParams(location.search);
+  const requestedView = params.get("view");
   attachEventListeners();
   await hydrateState();
+
+  if (requestedView === "sidepanel") {
+    state.layout = "sidebar";
+  } else if (requestedView === "popout") {
+    state.layout = "popout";
+  }
+
   applyTheme(state.theme);
   applyLayout(state.layout);
   applyLanguage(state.language);
+  applyModuleOrder(state.moduleOrder);
+  setupDragAndDrop();
   updatePromptCount();
   renderPresets();
   renderLibrary();
   renderCurrentInputs();
   renderResults();
-}
-
+})();
 function t(key, replacements) {
   const languagePack = translations[state.language] || translations.en;
   const fallbackPack = translations.en;
   const template = languagePack[key] ?? fallbackPack[key] ?? key;
-  if (!replacements) return template;
+  if (!replacements) {
+    return template;
+  }
   return template.replace(/\{\{(.*?)\}\}/g, (_, token) => {
     const trimmed = token.trim();
     return replacements[trimmed] ?? "";
@@ -387,6 +407,7 @@ async function hydrateState() {
     state.theme = stored.theme === "dark" ? "dark" : "light";
     state.language = translations[stored.language] ? stored.language : "en";
     state.layout = stored.layout === "sidebar" ? "sidebar" : "popout";
+    state.moduleOrder = sanitizeModuleOrder(stored.moduleOrder);
     state.results = (Array.isArray(stored.recentResults) ? stored.recentResults : [])
       .slice(0, MAX_RESULTS)
       .filter((item) => item?.dataUrl)
@@ -401,13 +422,6 @@ async function hydrateState() {
     els.themeSelect.value = state.theme;
     els.languageSelect.value = state.language;
     els.layoutSelect.value = state.layout;
-
-    if (state.defaultPresetId) {
-      const preset = state.promptPresets.find((entry) => entry.id === state.defaultPresetId);
-      if (preset) {
-        setPrompt(preset.text);
-      }
-    }
   } catch (error) {
     console.error("Failed to hydrate state", error);
     notify(t("status.loadSettingsFailed"));
@@ -434,6 +448,7 @@ function applyLayout(layout, options = {}) {
   if (options.persist) {
     void chrome.storage.local.set({ layout: resolved });
   }
+  notifyActionOfLayout(resolved);
 }
 
 function applyLanguage(language, options = {}) {
@@ -462,16 +477,110 @@ function applyLanguage(language, options = {}) {
   els.resultsGrid.dataset.empty = t("grid.resultsEmpty");
   els.presetEmpty.textContent = t("panel.presetsEmpty");
 
-  renderPresets();
-  renderCurrentInputs();
-  renderLibrary();
-  renderResults();
+  applyModuleOrder(state.moduleOrder);
+  setupDragAndDrop();
 
   if (options.persist) {
     void chrome.storage.local.set({ language: resolved });
   }
 }
 
+function applyModuleOrder(order) {
+  if (!els.modulesRoot) return;
+  const sanitized = sanitizeModuleOrder(order);
+  state.moduleOrder = sanitized;
+  const panels = Array.from(els.modulesRoot.querySelectorAll("[data-module]"));
+  const panelMap = new Map(panels.map((panel) => [panel.dataset.module, panel]));
+  sanitized.forEach((key) => {
+    const panel = panelMap.get(key);
+    if (panel) {
+      els.modulesRoot.appendChild(panel);
+    }
+  });
+  panels.forEach((panel) => {
+    if (!sanitized.includes(panel.dataset.module)) {
+      els.modulesRoot.appendChild(panel);
+    }
+  });
+}
+
+function setupDragAndDrop() {
+  if (!els.modulesRoot) return;
+  const panels = Array.from(els.modulesRoot.querySelectorAll("[data-module]"));
+  panels.forEach((panel) => {
+    const handle = panel.querySelector(".drag-handle");
+    if (!handle) return;
+    handle.setAttribute("draggable", "true");
+    if (!handle.dataset.dragBound) {
+      handle.addEventListener("dragstart", onDragHandleStart);
+      handle.addEventListener("dragend", onDragHandleEnd);
+      handle.dataset.dragBound = "true";
+    }
+    if (!panel.dataset.dragBound) {
+      panel.addEventListener("dragover", onPanelDragOver);
+      panel.addEventListener("drop", onPanelDrop);
+      panel.dataset.dragBound = "true";
+    }
+  });
+}
+
+function onDragHandleStart(evt) {
+  const panel = evt.currentTarget.closest("[data-module]");
+  if (!panel) return;
+  draggingModuleKey = panel.dataset.module;
+  panel.classList.add("panel-dragging");
+  evt.dataTransfer.effectAllowed = "move";
+  evt.dataTransfer.setData("text/plain", draggingModuleKey);
+}
+
+function onDragHandleEnd(evt) {
+  const panel = evt.currentTarget.closest("[data-module]");
+  if (panel) {
+    panel.classList.remove("panel-dragging");
+  }
+  finalizeModuleOrder();
+}
+
+function onPanelDragOver(evt) {
+  if (!draggingModuleKey) return;
+  evt.preventDefault();
+  const target = evt.currentTarget;
+  const draggingPanel = els.modulesRoot.querySelector(".panel-dragging");
+  if (!draggingPanel || draggingPanel === target) return;
+  const rect = target.getBoundingClientRect();
+  const isAfter = evt.clientY - rect.top > rect.height / 2;
+  if (isAfter) {
+    target.after(draggingPanel);
+  } else {
+    target.before(draggingPanel);
+  }
+}
+
+function onPanelDrop(evt) {
+  evt.preventDefault();
+  finalizeModuleOrder();
+}
+
+function finalizeModuleOrder() {
+  if (!els.modulesRoot) return;
+  const panels = Array.from(els.modulesRoot.querySelectorAll("[data-module]"));
+  panels.forEach((panel) => panel.classList.remove("panel-dragging"));
+  draggingModuleKey = null;
+  const newOrder = panels.map((panel) => panel.dataset.module);
+  state.moduleOrder = sanitizeModuleOrder(newOrder);
+  void chrome.storage.local.set({ moduleOrder: state.moduleOrder });
+}
+
+function sanitizeModuleOrder(order) {
+  const list = Array.isArray(order) ? order : [];
+  const filtered = list.filter((key) => MODULE_KEYS.includes(key));
+  MODULE_KEYS.forEach((key) => {
+    if (!filtered.includes(key)) {
+      filtered.push(key);
+    }
+  });
+  return filtered;
+}
 function setPrompt(value) {
   els.prompt.value = value;
   updatePromptCount();
@@ -481,6 +590,7 @@ function setPrompt(value) {
 function updatePromptCount() {
   els.promptCount.textContent = `${els.prompt.value.length} / ${els.prompt.maxLength}`;
 }
+
 function onFilePick(evt) {
   const files = evt.target.files;
   if (files?.length) {
@@ -710,6 +820,7 @@ function onPresetAction(evt) {
     void deletePreset(id);
   }
 }
+
 function addToCurrent(source) {
   if (state.currentInputs.length >= MAX_STYLE_IMAGES) {
     notify(t("status.inputLimit", { max: MAX_STYLE_IMAGES }));
@@ -749,7 +860,6 @@ async function persistToLibrary(item) {
   renderLibrary();
   notify(t("status.styleSaved"));
 }
-
 async function savePromptPreset() {
   const text = els.prompt.value.trim();
   if (!text) {
@@ -945,6 +1055,7 @@ function inferMimeFromDataUrl(dataUrl) {
 function toBase64(dataUrl) {
   return dataUrl.split(",")[1] || "";
 }
+
 function collectImageParts(payload) {
   const bucket = [];
 
@@ -973,12 +1084,8 @@ function collectImageParts(payload) {
       candidate.bytesBase64 ||
       candidate.imageBytes ||
       candidate.imageBase64 ||
-      (typeof candidate.content === "string"
-        ? candidate.content
-        : candidate.content?.data) ||
-      (typeof candidate.rawContent === "string"
-        ? candidate.rawContent
-        : candidate.rawContent?.data);
+      (typeof candidate.content === "string" ? candidate.content : candidate.content?.data) ||
+      (typeof candidate.rawContent === "string" ? candidate.rawContent : candidate.rawContent?.data);
 
     const base64 = typeof rawBase64 === "string" ? rawBase64.replace(/\s+/g, "") : "";
     if (!base64) return;
@@ -1110,13 +1217,19 @@ async function safeParse(response) {
   }
 }
 
+function notifyActionOfLayout(layout) {
+  try {
+    chrome?.runtime?.sendMessage?.({ type: "layoutChanged", layout });
+  } catch (error) {
+    console.warn("Unable to notify layout change", error);
+  }
+}
+
 function uuid() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
-
-
 
 

@@ -15,19 +15,26 @@
       </div>
       <button id="openSettings" class="icon-btn" type="button" aria-label="Open settings" data-i18n-aria-label="aria.openSettings">
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M10.5 2h3l.6 2.4c.4.1.7.3 1 .5l2.3-1 1.5 2.6-1.9 1.5c0 .3.1.7.1 1s0 .7-.1 1l1.9 1.5-1.5 2.6-2.3-1c-.3.2-.6.4-1 .5L13.5 20h-3l-.6-2.4c-.4-.1-.7-.3-1-.5l-2.3 1-1.5-2.6 1.9-1.5c-.1-.3-.1-.7-.1-1s0-.7.1-1L3.1 7.5l1.5-2.6 2.3 1c.3-.2.6-.4 1-.5L10.5 2Zm1.5 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+          <path d="M10.5 2h3l.6 2.4c.4.1.7.3 1 .5l2.3-1 1.5 2.6-1.9 1.5c0 .3.1.7.1 1s0 .7-.1 1l1.9 1.5-1.5 2.6-2.3-1c-.3.2-.6.4-1 .5L13.5 20h-3l-.6-2.4c-.4-.1-.7-.3-1-.5l-2.3 1-1.5-2.6 1.9-1.5c-.1-.3-.1-.7-.1-1s0-.7.1-1L5.1 7.5l1.5-2.6 2.3 1c.3-.2.6-.4 1-.5L10.5 2Zm1.5 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
         </svg>
       </button>
     </header>
 
-    <main class="app-main">
+    <main class="app-main" id="modulesRoot">
       <section class="panel" data-module="prompt">
         <div class="panel-header">
-          <div>
+          <div class="panel-header-main">
             <h2 data-i18n="panel.promptTitle">Prompt Studio</h2>
             <p class="panel-subtitle" data-i18n="panel.promptDescription">Craft your idea and keep the best prompts close.</p>
           </div>
-          <span id="promptCount" class="meta-label">0 / 800</span>
+          <div class="panel-header-tools">
+            <span id="promptCount" class="meta-label">0 / 800</span>
+            <button class="drag-handle" type="button" aria-label="Reorder module" data-i18n-aria-label="aria.dragModule">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="prompt-combo">
           <textarea id="promptInput" maxlength="800" data-i18n-placeholder="prompt.placeholder" placeholder="Describe what you want to create."></textarea>
@@ -50,13 +57,20 @@
 
       <section class="panel" data-module="styles">
         <div class="panel-header">
-          <div>
+          <div class="panel-header-main">
             <h2 data-i18n="panel.stylesTitle">Style Reference</h2>
             <p class="panel-subtitle" data-i18n="panel.stylesDescription">Upload inspiration and curate a reusable style library.</p>
           </div>
-          <div class="panel-actions">
-            <button id="clearCurrent" class="ghost-btn xsmall" type="button" data-i18n="actions.resetInputs">Reset Inputs</button>
-            <button id="clearLibrary" class="ghost-btn xsmall" type="button" data-i18n="actions.clearLibrary">Clear Library</button>
+          <div class="panel-header-tools">
+            <div class="panel-actions">
+              <button id="clearCurrent" class="ghost-btn xsmall" type="button" data-i18n="actions.resetInputs">Reset Inputs</button>
+              <button id="clearLibrary" class="ghost-btn xsmall" type="button" data-i18n="actions.clearLibrary">Clear Library</button>
+            </div>
+            <button class="drag-handle" type="button" aria-label="Reorder module" data-i18n-aria-label="aria.dragModule">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
+              </svg>
+            </button>
           </div>
         </div>
         <div class="style-content">
@@ -86,9 +100,16 @@
 
       <section class="panel" data-module="generate">
         <div class="panel-header">
-          <div>
+          <div class="panel-header-main">
             <h2 data-i18n="panel.generateTitle">Generate</h2>
             <p class="panel-subtitle" data-i18n="panel.generateDescription">Send your prompt to Gemini and iterate quickly.</p>
+          </div>
+          <div class="panel-header-tools">
+            <button class="drag-handle" type="button" aria-label="Reorder module" data-i18n-aria-label="aria.dragModule">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
+              </svg>
+            </button>
           </div>
         </div>
         <div class="generate-actions">
@@ -103,11 +124,18 @@
 
       <section class="panel" data-module="results">
         <div class="panel-header">
-          <div>
+          <div class="panel-header-main">
             <h2 data-i18n="panel.resultsTitle">Results</h2>
             <p class="panel-subtitle" data-i18n="panel.resultsDescription">Copy, download, or convert outputs into new styles.</p>
           </div>
-          <button id="clearResults" class="ghost-btn xsmall" type="button" data-i18n="actions.clearResults">Clear Results</button>
+          <div class="panel-header-tools">
+            <button id="clearResults" class="ghost-btn xsmall" type="button" data-i18n="actions.clearResults">Clear Results</button>
+            <button class="drag-handle" type="button" aria-label="Reorder module" data-i18n-aria-label="aria.dragModule">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-6 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm6 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div id="resultsGrid" class="thumb-grid results" data-empty="Images will appear here."></div>
       </section>
@@ -205,4 +233,3 @@
   <script src="index.js" defer></script>
 </body>
 </html>
-

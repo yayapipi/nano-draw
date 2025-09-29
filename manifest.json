@@ -9,13 +9,22 @@
   },
   "permissions": [
     "storage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://generativelanguage.googleapis.com/*"
   ],
   "icons": {
     "128": "assets/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "index.html?view=sidepanel"
   }
 }
+
 
